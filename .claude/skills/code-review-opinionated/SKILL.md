@@ -92,9 +92,22 @@ Each pass is blind to the others, so it cannot calibrate impact to a global scal
 
 Columns:
 
-`priority` (sort key) · `id` · `pass` · `title` · `impact` · `confidence` · `effort` · `native_score` · `status` · `rationale`
+`priority` (sort key) · `id` · `sources` · `title` · `impact` · `confidence` · `effort` · `native_score` · `status` · `rationale`
 
-IDs reference back into the detail files. Write the table sorted by `priority` descending.
+The `sources` column lists the contributing finding ID(s) (see Deduplication). IDs reference back into the detail files. Write the table sorted by `priority` descending.
+
+## Deduplication
+
+Before writing the table, merge findings that are **the same finding**.
+
+**Sameness criterion:** two findings are the same iff they are at the **same location** AND **each one's fix would also resolve the other** (a single code change makes both disappear). This is behavioral, not topical — two findings about "naming" at different lines are NOT the same; a bug and a rename at the same line are NOT the same (different fixes).
+
+For each merge group:
+- Write **one** summary row.
+- The `sources` column lists **all** contributing finding IDs, e.g. `GEN-03, PROP-06, SCREAM-01`. A single-source finding lists one ID.
+- The row's `id` column is the **first listed source ID** (so it always points at a real detail-file entry); `sources` carries the full set. Do not invent synthetic merged IDs.
+- Each source pass's detail file keeps its full prose unchanged. When acting on a merged finding, read every referenced entry so each pass's nuance is preserved.
+- Assign the merged row's `impact`/`priority` once, over the merged finding (not once per source).
 
 ## State Tracking
 
