@@ -109,6 +109,32 @@ For each merge group:
 - Each source pass's detail file keeps its full prose unchanged. When acting on a merged finding, read every referenced entry so each pass's nuance is preserved.
 - Assign the merged row's `impact`/`priority` once, over the merged finding (not once per source).
 
+## Overlap Log
+
+After deduplication, append one entry per review to `docs/reviews/_overlap-log.md` (create the file on first collision). This records facts already computed during dedup; it requires no extra analysis.
+
+**A `pass:concern` participant** is `<pass-name>:<concern>`. For passes that declare `concerns:` frontmatter, use the finding's `concern`. For catch-all passes with no `concerns:` (e.g. `general-review`), use the pass name as the concern, so the participant is `general-review:general-review`.
+
+**Entry format:**
+
+```
+## <YYYY-MM-DD> | <slug> | scope <BASE>..<HEAD> | passes: [<selected pass names>]
+collisions_total_running: <N>
+
+### Collisions (count + merged summary IDs)
+- <passA:concernX> × <passB:concernY> [× <passC:concernZ> ...] — <count>  [<merged summary IDs>]
+
+### Unmatched (counts only)
+- <pass:concern> — <count>
+```
+
+**Logging rules (LOAD-BEARING — do not simplify):**
+
+- **Each merge group is logged as ONE tuple carrying its FULL participant set** (every `pass:concern` in the merge), never decomposed into pairwise pairs. This is what makes count-only logging reconstructible — see `overlap-analysis.md` for the proof. Pairwise logging would break it.
+- **Collisions:** group merge tuples by their identical full participant set; store a `count` (how many merges had that exact participant set) and the list of the merged rows' summary IDs.
+- **Unmatched:** every finding NOT in any merge group, counted per `pass:concern`. Counts only — the findings themselves live in that review's `summary.md`.
+- **`collisions_total_running`:** a running counter across ALL reviews. On each review, read the previous value from the last log entry (0 if the file is new), add this review's total collision count (sum of collision tuple counts), write the new total. This drives the auto-offer (see Overlap Nudges).
+
 ## State Tracking
 
 - `status` lives **only** in the summary table — single source of truth.
