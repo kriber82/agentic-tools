@@ -156,6 +156,10 @@ Offer responses:
 - **remind next time** — keep the counter unchanged (re-offers next review with collisions).
 - **remind later** — reset `collisions_total_running` to 0 in the log (snooze a full cycle).
 
+**Manual trigger.** "analyze pass overlap" runs the decision-time analysis at any time, regardless of the counter. Load `overlap-analysis.md` and follow it.
+
+The every-run knowledge (dedup, the logging contract, these nudges) lives here in SKILL.md. The rare decision-time analysis (clustering, subsumption math, the four moves) lives in `overlap-analysis.md` and is loaded only when triggered, to keep this file lean.
+
 ## State Tracking
 
 - `status` lives **only** in the summary table — single source of truth.
