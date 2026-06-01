@@ -135,6 +135,27 @@ collisions_total_running: <N>
 - **Unmatched:** every finding NOT in any merge group, counted per `pass:concern`. Counts only — the findings themselves live in that review's `summary.md`.
 - **`collisions_total_running`:** a running counter across ALL reviews. On each review, read the previous value from the last log entry (0 if the file is new), add this review's total collision count (sum of collision tuple counts), write the new total. This drives the auto-offer (see Overlap Nudges).
 
+## Overlap Nudges
+
+**Per-review footer.** When a review had ≥1 collision, append to the bottom of `summary.md` (before the end marker) a factual footer showing collision count, unique counts per pass, and the top-3 colliding concern tuples with `+N more` overflow:
+
+```
+Overlap this review: <C> collisions · unique — <pass>: <n>, <pass>: <n>, ...
+Top colliding concerns: <concernX×concernY> (<count>), <...> (<count>)[, +<N> more]
+```
+
+**Auto-offer trigger.** When `collisions_total_running` crosses **100** (fixed; not configurable), append an offer to that review's `summary.md` footer showing the top-3 heaviest tuples + `+N more`:
+
+```
+100+ collisions logged. Heaviest overlaps: <X×Y> (<count>), <...> (<count>), +<N> more pairs.
+Run overlap analysis? [now / remind next time / remind later]  (or ask "analyze pass overlap" anytime)
+```
+
+Offer responses:
+- **now** — load `overlap-analysis.md` and run the decision-time analysis.
+- **remind next time** — keep the counter unchanged (re-offers next review with collisions).
+- **remind later** — reset `collisions_total_running` to 0 in the log (snooze a full cycle).
+
 ## State Tracking
 
 - `status` lives **only** in the summary table — single source of truth.
