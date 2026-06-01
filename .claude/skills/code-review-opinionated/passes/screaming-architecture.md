@@ -3,6 +3,7 @@ name: screaming-architecture
 description: Per-file intention-clarity review — does the code's local text scream its business mission? Walks changed production files from construction root toward the edges, applying the Stranger / Substitution / Vocabulary tests, and proposes code-level (not comment) refactorings that make intent legible. Overlaps somewhat with general code-quality review and can overshoot — calibration guidance included.
 id_prefix: SCREAM
 estimates_effort: true
+concerns: [stranger-reconstruction, substitution-genericity, vocabulary-audit]
 ---
 
 # Pass: Screaming Architecture
@@ -74,6 +75,9 @@ Each surviving improvement proposal becomes a finding.
 - `impact-evidence`: the concrete gap — which slot/word is missing and what the
   stranger wrongly reconstructs — e.g. "stranger reads `process(data)` as generic
   ETL; real mission is settling payouts".
+- `concern`: the single `concerns:` label (from this pass's frontmatter) that best
+  classifies this finding. Used for cross-pass overlap analysis; must be one of the
+  declared labels.
 
 Do **not** emit a cross-pass impact number; the orchestrator assigns impact with
 all findings in view.
@@ -92,6 +96,7 @@ scope: <BASE>..<HEAD>
 - native_score: <high | med | low | number>
 - confidence: <low | medium | high>
 - effort: <low | medium | high>
+- concern: <one label from this pass's `concerns:` frontmatter list>
 - impact-evidence: <the concrete gap: missing slot + stranger's wrong read>
 
 <prose: file:line, the failing test(s), proposed code change (local and/or broader), why it closes the gap>
@@ -104,7 +109,7 @@ scope: <BASE>..<HEAD>
 ## Return to orchestrator
 
 Compact row-summary, one line per finding:
-`id | title | native_score | confidence | effort | impact-evidence`.
+`id | title | native_score | confidence | effort | concern | impact-evidence`.
 Regenerable from the detail file headers; ephemeral.
 
 ## Reminder

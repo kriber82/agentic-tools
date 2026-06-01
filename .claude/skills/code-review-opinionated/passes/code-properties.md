@@ -3,6 +3,7 @@ name: code-properties
 description: Reviews changed production files against a checklist of engineering properties — functional (correct/secure/resilient), locally-understandable (intent/names/cohesion/altitude/etc.), and maintainability (directed/idiomatic). Proposes improvements per violated property. Note — partial overlap with general-review (correctness/resilience) and screaming-architecture (intent/names); this is intended, the passes surface different genuine findings.
 id_prefix: PROP
 estimates_effort: false
+concerns: [correct, secure, resilient, reveals-intent, self-contained, honest-names, fits-in-head, one-abstraction-level, semantic-grouping, cohesive, explicit, symmetric, directed, idiomatic]
 ---
 
 # Pass: Code Properties
@@ -72,6 +73,9 @@ Each proposed improvement becomes a finding.
 - `impact-evidence`: the concrete violation, naming **which property** and the
   specific symptom — e.g. "Resilient: `catch {}` swallows the network error so a
   failed fetch silently returns stale data".
+- `concern`: the single `concerns:` label (from this pass's frontmatter) that best
+  classifies this finding. Used for cross-pass overlap analysis; must be one of the
+  declared labels.
 
 Name the violated property in every finding so provenance is unambiguous (this
 pass overlaps others — the property name is how a reader tells findings apart).
@@ -91,6 +95,7 @@ scope: <BASE>..<HEAD>
 - native_score: <high | med | low>
 - confidence: <low | medium | high>
 - property: <Correct | Resilient | Reveals intent | Honest names | Explicit | Directed | Idiomatic | ...>
+- concern: <one label from this pass's `concerns:` frontmatter list>
 - impact-evidence: <property + concrete symptom>
 
 <prose: file:line, what conflicts with the property, why it matters, proposed code change>
@@ -103,7 +108,7 @@ scope: <BASE>..<HEAD>
 ## Return to orchestrator
 
 Compact row-summary, one line per finding:
-`id | title | native_score | confidence | property | impact-evidence`.
+`id | title | native_score | confidence | concern | property | impact-evidence`.
 Regenerable from the detail file headers; ephemeral.
 
 ## Reminder
