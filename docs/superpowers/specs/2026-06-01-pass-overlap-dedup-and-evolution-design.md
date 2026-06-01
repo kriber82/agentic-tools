@@ -125,7 +125,9 @@ collisions_total_running: 47
 
 - **Each merge group is logged as ONE tuple carrying its full participant set**
   (all `pass:concern` participants), never decomposed into pairwise pairs. This is
-  a hard requirement — it is what makes count-only logging reconstructible.
+  a hard requirement and is **load-bearing** — it is what makes count-only logging
+  reconstructible (see `overlap-analysis.md` for the math that depends on it). Do
+  not "simplify" to pairwise logging.
 - **Collisions:** per full-participant tuple, store a **count** and the list of
   **merged summary IDs** (traceability; escape hatch for the rare 3+ pass case).
 - **Unmatched:** **counts only**, per `pass:concern` (the findings themselves live
@@ -133,13 +135,11 @@ collisions_total_running: 47
 - `collisions_total_running` — running counter across all reviews (drives the
   auto-nudge; see below).
 
-**Reconstructibility (why counts suffice):** for any pair A, B —
-`total(A:x) = unmatched(A:x) + Σ counts of every tuple containing A:x`;
-`A∩B on (x,y) = Σ counts of tuples containing both A:x and B:y`;
-`A\B = total(A) − A∩B`. A finding where A collides with C but not B sits in tuple
-`{A:x, C:z}`, counted in `total(A)` but not in `A∩B`, so it correctly lands in
-`A\B`. Nothing is lost — it is arithmetic across tuples at decision time rather
-than a directly-readable line.
+**Reconstructibility** is proven in `overlap-analysis.md` (the decision-time
+reference). Summary: counts per full-participant tuple plus unmatched counts are
+sufficient to recover A∩B, A\B, and B\A for any pass pair by arithmetic across
+tuples. The orchestrator does **not** need this math to log correctly — the
+logging rules above are mechanically complete on their own.
 
 **Accepted losses at medium** (recoverable later by joining merged IDs to the
 review summaries; heavy-persistence territory): spatial distribution of collisions,
@@ -155,10 +155,9 @@ Overlap this review: 2 collisions · unique — general-review: 4, code-properti
 Top colliding concerns: honest-names×vocabulary-audit (2), resilience×correct (1)
 ```
 
-**Auto-offer trigger** — when `collisions_total_running` crosses a threshold
-(default **100**, configurable). Driven by accumulated collisions (a better proxy
-for "enough evidence per concept-pair" than session count). Top-3 tuples + `+N
-more`:
+**Auto-offer trigger** — when `collisions_total_running` crosses **100** (fixed for
+now; not configurable). Driven by accumulated collisions (a better proxy for
+"enough evidence per concept-pair" than session count). Top-3 tuples + `+N more`:
 
 ```
 100+ collisions logged. Heaviest overlaps: honest-names×vocabulary-audit (23), resilience×correct (14), +5 more pairs.
@@ -174,7 +173,16 @@ Offer responses:
 
 ## Feature 5 — Decision-time analysis (human-driven, rare)
 
-When triggered, the agent + user:
+**This procedure lives in a separate file `overlap-analysis.md`, loaded only when
+triggered** — not inline in SKILL.md. Rationale: the orchestrator needs only the
+dedup + logging contract on every run (mechanically complete on its own); the
+analysis knowledge (clustering, reconstructibility math, subsumption, the four
+moves) is heavy and used rarely, so keeping it out of the every-run context keeps
+SKILL.md lean. `overlap-analysis.md` also holds the reconstructibility proof that
+the load-bearing full-participant-set logging rule depends on.
+
+When triggered (auto-offer "now", or manual "analyze pass overlap"), the agent
+loads `overlap-analysis.md` and, with the user:
 
 1. Read the accumulated `_overlap-log.md`.
 2. Cluster the **stable concern labels** (small finite set — the union of declared
@@ -195,8 +203,12 @@ user judges whether N is sufficient.
 
 - **SKILL.md (orchestrator):** add the merge/dedup step (sources = source IDs);
   write the per-review log entry; emit the per-review footer; check the auto-offer
-  threshold; document the "analyze pass overlap" manual trigger and the
-  decision-time procedure.
+  threshold; document the "analyze pass overlap" manual trigger and point to
+  `overlap-analysis.md` for the decision-time procedure. Inline content stays
+  limited to the dedup + logging contract + nudges (the every-run knowledge).
+- **New file `overlap-analysis.md`** (in the skill dir, loaded only on trigger):
+  the decision-time procedure, the reconstructibility proof, subsumption criteria,
+  and the four moves.
 - **Summary table:** `pass` column → `sources` column (list of source finding IDs).
 - **Pass frontmatter:** add `concerns: [...]` to specific passes
   (`code-properties`, `screaming-architecture`); `general-review` stays exempt.
@@ -212,4 +224,3 @@ user judges whether N is sufficient.
 
 - Exact concern vocabularies to declare for `code-properties` and
   `screaming-architecture` (derive from their existing lists).
-- Threshold default confirmation (100) and where "configurable" lives.
