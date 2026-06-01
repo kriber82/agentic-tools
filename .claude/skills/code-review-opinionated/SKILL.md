@@ -68,7 +68,7 @@ No stub files for skipped passes — record skipped passes in the summary header
 
 Each finding:
 
-- **ID** — `<PASS>-NN` (e.g. `SEC-03`), stable, referenced by the summary.
+- **ID** — `<PREFIX>-NN` (e.g. `SEC-03`), where `<PREFIX>` is the pass's `id_prefix` frontmatter value; stable, referenced by the summary.
 - **Metadata header** (machine-readable):
   - `confidence` — the pass's confidence the finding is real (the pass knows this best).
   - `effort` — fix-effort estimate, *only if the pass has a sense of it*; else omit.
@@ -170,4 +170,7 @@ All of these mean: **write only under `docs/reviews/`, propose, and hand back to
 
 ## Passes
 
-Review passes live in `passes/*.md`, discovered by glob. Each has frontmatter (`name`, `description`, `estimates_effort`) and a body that ends by instructing the subagent to write its detail file in the Finding Entry schema (IDs, metadata header, impact-evidence, end marker) and return the compact row-summary. Drop a new file in `passes/` to add a pass; it appears as an option automatically.
+Review passes live in `passes/*.md`, discovered by glob. Each has frontmatter (`name`, `description`, `id_prefix`, `estimates_effort`) and a body that ends by instructing the subagent to write its detail file in the Finding Entry schema (IDs use `id_prefix`, metadata header, impact-evidence, end marker) and return the compact row-summary. Drop a new file in `passes/` to add a pass; it appears as an option automatically.
+
+Shipped passes:
+- `general-review` — broad senior-engineer review; wraps `superpowers:requesting-code-review`.
