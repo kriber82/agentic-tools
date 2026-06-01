@@ -135,11 +135,24 @@ collisions_total_running: 47
 - `collisions_total_running` — running counter across all reviews (drives the
   auto-nudge; see below).
 
-**Reconstructibility** is proven in `overlap-analysis.md` (the decision-time
-reference). Summary: counts per full-participant tuple plus unmatched counts are
-sufficient to recover A∩B, A\B, and B\A for any pass pair by arithmetic across
-tuples. The orchestrator does **not** need this math to log correctly — the
-logging rules above are mechanically complete on their own.
+**Reconstructibility (why counts suffice).** Counts per full-participant tuple plus
+unmatched counts recover A∩B, A\B, and B\A for any pass pair by arithmetic across
+tuples. For any pair A, B and concerns x, y:
+
+- `total(A:x) = unmatched(A:x) + Σ counts of every tuple containing A:x`
+- `A∩B on (x,y) = Σ counts of tuples containing BOTH A:x and B:y`
+- `A\B = total(A:x) − Σ_y (A∩B on (x,y))`  (symmetrically for B\A)
+
+A finding where A collides with a third pass C but not with B sits in tuple
+`{A:x, C:z}`: it is counted in `total(A:x)` but in no tuple containing a `B:*`
+participant, so it correctly lands in `A\B`. Nothing is lost — it is arithmetic
+across tuples at decision time rather than a directly-readable line. This is **why
+the full-participant-set logging rule is load-bearing**: pairwise-decomposed
+logging would break the third term.
+
+The orchestrator does **not** need this math to log correctly — the logging rules
+above are mechanically complete on their own. This derivation is the authoritative
+copy; `overlap-analysis.md` (built later) carries it for the decision-time reader.
 
 **Accepted losses at medium** (recoverable later by joining merged IDs to the
 review summaries; heavy-persistence territory): spatial distribution of collisions,
