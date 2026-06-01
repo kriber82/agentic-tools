@@ -174,3 +174,4 @@ Review passes live in `passes/*.md`, discovered by glob. Each has frontmatter (`
 
 Shipped passes:
 - `general-review` — broad senior-engineer review; wraps `superpowers:requesting-code-review`.
+- `screaming-architecture` — per-file intention-clarity review (Stranger/Substitution/Vocabulary tests); proposes code-only refactorings. Estimates effort.
