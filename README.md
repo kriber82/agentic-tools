@@ -1,2 +1,2 @@
 # AgenticTools
-This is my toolset for agentic workflows. Mainly related to Software Development
+This is my toolset for agentic workflows. Mainly related to Software Development. Most entries are rather unpolished working states. Please use your own critical judgement, when applying. Feedback is always welcome, but i'm not sure how actively i will monitor it.
