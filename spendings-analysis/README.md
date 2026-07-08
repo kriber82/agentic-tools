@@ -6,7 +6,7 @@ A complete personal cost-management bundle:
    metadata). Includes a `report` mode.
 2. **Statusline signals** — idle 💤 timer, ❄ cold-turn flag, ↻new? large-context hint.
 3. **`spend-analysis` skill** — playbook + scripts to analyze the logs.
-4. **`cost-awareness.md`** — behavioral guide (mandatory-read via CLAUDE.md).
+4. **`cost-awareness.md`** — behavioral guide (mandatory-read via CLAUDE.md). I don't have any experience suggesting or denying effectivity, yet.
 
 ## ⚠️ Before installing — consent & what this touches
 
